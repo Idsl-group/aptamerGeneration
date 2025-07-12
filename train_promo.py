@@ -21,6 +21,7 @@ if args.wandb:
 trainer = pl.Trainer(
     default_root_dir=os.environ["MODEL_DIR"],
     accelerator="gpu" if torch.cuda.is_available() else 'auto',
+    strategy="ddp_find_unused_parameters_true",
     max_steps=args.max_steps,
     num_sanity_val_steps=0,
     limit_train_batches=args.limit_train_batches,
@@ -32,7 +33,7 @@ trainer = pl.Trainer(
             dirpath=os.environ["MODEL_DIR"],
             save_top_k=1,
             save_last=True,
-            monitor='val_sp-mse'
+            monitor='val_sp-mse',
         )
     ],
     check_val_every_n_epoch=args.check_val_every_n_epoch,

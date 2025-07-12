@@ -31,6 +31,7 @@ data
 commands.sh
 .ref.npz
 .ref.val.npz
+selene/
 # Junk #
 ########
 .DS_Store*
@@ -43,3 +44,4 @@ commands.sh
 *.out
 wandb/
 *.ipynb
+__MACOSX
