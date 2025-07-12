@@ -39,9 +39,9 @@ trainer = pl.Trainer(
     check_val_every_n_epoch=args.check_val_every_n_epoch,
 )
 
-
+# Can change sequence length here
 train_ds = PromoterDataset(n_tsses=100000, rand_offset=10, split='train')
-val_ds = PromoterDataset(n_tsses=100000, rand_offset=0, split='valid' if not args.validate_on_test else 'test') if not args.overfit else train_ds
+val_ds = PromoterDataset(seqlength=args.sequence_length, n_tsses=100000, rand_offset=0, split='valid' if not args.validate_on_test else 'test') if not args.overfit else train_ds
 
 train_loader = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, shuffle=not args.overfit, num_workers=args.num_workers)
 val_loader = torch.utils.data.DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)

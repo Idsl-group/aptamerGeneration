@@ -103,6 +103,7 @@ def parse_train_args():
     parser.add_argument("--flow_temp", type=float, default=1.0)
     parser.add_argument('--val_pred_type', type=str, choices=['argmax', 'sample'], default='argmax')
     parser.add_argument('--num_integration_steps', type=int, default=20, help='The number of integration steps used during inference.')
+    parser.add_argument('--sequence_length', type=int, default=1024, help='The length of the DNA sequence, defaulted to 1024')
 
     # Logging
     parser.add_argument("--no_tqdm", action="store_true")

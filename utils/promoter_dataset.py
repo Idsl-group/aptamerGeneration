@@ -74,6 +74,10 @@ class GenomicSignalFeatures(Target):
         return wigmat
 class PromoterDataset(torch.utils.data.Dataset):
     def __init__(self, seqlength=1024, split="train", n_tsses=100000, rand_offset=0):
+        """
+        seqlength: length of the DNA sequence, as in the number of nucleoides
+        n_tsses: Transcription Start Site, point o the DNA where transcription begins
+        """
         self.shuffle = False
 
         class ModelParameters:
