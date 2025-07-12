@@ -42,6 +42,12 @@ class PromoterModule(GeneralModule):
     def validation_step(self, batch, batch_idx):
         self.stage = 'val'
         loss = self.general_step(batch, batch_idx)
+
+        # Adding this line to log the sp-mse metric for ModelCheckpoint
+        if 'val_sp-mse' in self._log and len(self._log['val_sp-mse']) > 0:
+            # Get the last value logged for this batch and make it available to callbacks
+            self.log('val_sp-mse', np.mean(self._log['val_sp-mse']), prog_bar=True, sync_dist=True)
+
         if self.args.validate:
             self.try_print_log()
 
@@ -233,6 +239,11 @@ class PromoterModule(GeneralModule):
 
         if self.trainer.is_global_zero:
             logger.info(str(mean_log))
+
+            # Adding this block to log individual metrics properly
+            for key, value in mean_log.items():
+                self.log(key, value, batch_size=1)
+
             self.log_dict(mean_log, batch_size=1)
             if self.args.wandb:
                 wandb.log(mean_log)

@@ -29,7 +29,7 @@ trainer = pl.Trainer(
     enable_progress_bar=not (args.wandb or args.no_tqdm) or os.getlogin() == 'anonymized',
     gradient_clip_val=args.grad_clip,
     callbacks=[
-        ModelCheckpoint(
+        ModelCheckpoint( # This is what saves the checkpoints for the model
             dirpath=os.environ["MODEL_DIR"],
             save_top_k=1,
             save_last=True,
