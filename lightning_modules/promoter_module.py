@@ -56,7 +56,7 @@ class PromoterModule(GeneralModule):
         seq_one_hot = batch[:, :, :4]
         seq = torch.argmax(seq_one_hot, dim=-1)
         signal = batch[:, :, 4:5]
-        
+
         B, L = seq.shape
 
         if self.args.mode == 'dirichlet' or self.args.mode == 'riemannian':
