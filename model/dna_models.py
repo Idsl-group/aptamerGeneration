@@ -114,7 +114,7 @@ class CNNModel(nn.Module):
                 return self.cls_head[1:](embedding), embedding
             else:
                 return self.cls_head(feat)
-        return feat
+        return feat 
 
 class TransformerModel(nn.Module):
     def __init__(self, args, alphabet_size, num_cls, classifier=False):
