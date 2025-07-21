@@ -37,7 +37,7 @@ class CLSModule(GeneralModule):
             raise NotImplementedError()
         self.condflow = DirichletConditionalFlow(K=self.model.alphabet_size, alpha_spacing=0.01, alpha_max=args.alpha_max)
         self.crossent_loss = torch.nn.CrossEntropyLoss(reduction='none')
-        self.val_output = defaultdict(list)
+        self.val_output = defaultdict(list) # Check this
 
     def training_step(self, batch, batch_idx):
         self.stage = 'train'
@@ -53,7 +53,7 @@ class CLSModule(GeneralModule):
         if self.args.validate:
             self.try_print_log()
 
-    def general_step(self, batch, batch_idx=None):
+    def general_step(self, batch, batch_idx=None): # Check this
         self.iter_step += 1
         seq, cls = batch
         cls = cls.squeeze()
@@ -74,7 +74,7 @@ class CLSModule(GeneralModule):
         elif self.args.val_pred_type == 'sample':
             cls_pred = torch.nn.functional.softmax(logits, dim=-1)
             cls_pred = torch.distributions.Categorical(cls_pred).sample()
-        if self.stage == 'val':
+        if self.stage == 'val' : # check this
             self.val_output['clss'].append(cls)
             self.val_output['logits'].append(logits)
             self.val_output['alphas'].append(alphas)

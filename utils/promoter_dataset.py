@@ -81,8 +81,8 @@ class PromoterDataset(torch.utils.data.Dataset):
         self.shuffle = False
 
         class ModelParameters:
-            seifeatures_file = 'data/promoter_design/target.sei.names'
-            seimodel_file = 'data/promoter_design/best.sei.model.pth.tar'
+            seifeatures_file = 'data/promoter_design/target.sei.names' # Not used
+            seimodel_file = 'data/promoter_design/best.sei.model.pth.tar' # Not used
 
             ref_file = 'data/promoter_design/Homo_sapiens.GRCh38.dna.primary_assembly.fa'
             ref_file_mmap = 'data/promoter_design/Homo_sapiens.GRCh38.dna.primary_assembly.fa.mmap'

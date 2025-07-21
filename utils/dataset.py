@@ -5,15 +5,65 @@ import torch, esm, random, os, json
 import numpy as np
 from Bio import SeqIO
 
+import pandas as pd
+import ast
+
+
+import numpy as np
+
+def parse_numpy_array_string(s):
+    # Remove newlines, then split the array rows
+    s = s.replace('\n', ' ').replace('[', '').replace(']', '')
+    # Convert string of floats into a 1D array
+    float_array = np.fromstring(s, sep=' ')
+    # Infer shape (e.g. 100 x 4)
+    num_rows = int(len(float_array) / 4)
+    return float_array.reshape((num_rows, 4))
+
+def parse_numpy_array_string_protein(s):
+    # Remove newlines, then split the array rows
+    s = s.replace('\n', ' ').replace('[', '').replace(']', '')
+    # Convert string of floats into a 1D array
+    float_array = np.fromstring(s, sep=' ')
+    # Infer shape (e.g. 100 x 4)
+    num_rows = int(len(float_array) / 538)
+    return float_array.reshape((num_rows, 538))
 
 
 
 class EnhancerDataset(torch.utils.data.Dataset):
-    def __init__(self, args, split='train'):
-        all_data = pickle.load(open(f'data/the_code/General/data/Deep{"MEL2" if args.mel_enhancer else "FlyBrain"}_data.pkl', 'rb'))
-        self.seqs = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'{split}_data'])), dim=-1)
-        self.clss = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'y_{split}'])), dim=-1)
-        self.num_cls = all_data[f'y_{split}'].shape[-1]
+    def __init__(self, args, split='train', data="original"):
+        if data == "original":
+            all_data = pickle.load(open(f'data/the_code/General/data/Deep{"MEL2" if args.mel_enhancer else "FlyBrain"}_data.pkl', 'rb'))
+            self.seqs = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'{split}_data'])), dim=-1)
+            self.clss = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'y_{split}'])), dim=-1)
+            self.num_cls = all_data[f'y_{split}'].shape[-1]
+        elif data == "aptamer":
+            all_data = pd.read_csv("data/aptamer/aptamer_seq_utexas.csv")
+            if split == 'train':
+                start = 0
+                end = 1200
+            else:
+                start = 1200
+                end = len(all_data)
+
+            using_data =  all_data.iloc[start:end]
+
+            # Safely evaluate the strings into lists, then convert to numpy arrays
+            using_data['onehot_padded'] = using_data['onehot_padded'].apply(parse_numpy_array_string)   
+            using_data['onehot_padded'] = using_data['onehot_padded'].apply(np.array)
+
+            using_data['protein_onehot'] = using_data['protein_onehot'].apply(parse_numpy_array_string_protein) 
+            using_data['protein_onehot'] = using_data['protein_onehot'].apply(np.array) 
+
+            self.seqs = torch.argmax(torch.tensor(np.stack(copy.deepcopy(using_data['onehot_padded'].values)), dtype=torch.float32), dim=-1)
+            self.clss = torch.argmax(torch.tensor(np.stack(copy.deepcopy(using_data['protein_onehot'].values)), dtype=torch.float32), dim=-1)
+            self.num_cls = 538
+            print(self.num_cls)
+
+        else: 
+            raise ValueError("File: dataset.py ; Line 21 ; Gave an invalid argument for data object")
+
         self.alphabet_size = 4
 
     def __len__(self):
