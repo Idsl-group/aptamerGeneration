@@ -6,6 +6,7 @@ Some other details for how I am running this:
 
 - OS: Ubuntu 20.04.6 LTS
 - NVCC: release 12.1, V12.1.105
+- [UTexas Aptamer Data](https://sites.utexas.edu/aptamerdatabase/)
 
 Approximate project layout
 
