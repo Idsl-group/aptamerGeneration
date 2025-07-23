@@ -411,6 +411,10 @@ class DNAModule(GeneralModule):
             embeds_rand = torch.randint(0,4, size=embeds_gen.shape).numpy()
             mean_log.update({'val_fxd_randseq_to_allseqs': get_wasserstein_dist(embeds_rand, embeds)})
             mean_log.update({'val_fxd_generated_to_allseqs': get_wasserstein_dist(embeds_gen, embeds)})
+
+            # Added this
+            self.log('val_fxd_generated_to_allseqs', get_wasserstein_dist(embeds_gen, embeds), prog_bar=True, sync_dist=True)
+
             if not self.args.target_class == self.model.num_cls:
                 embeds_cls_specific = embeds[clss == self.args.target_class]
                 mean_log.update({'val_fxd_generated_to_targetclsseqs': get_wasserstein_dist(embeds_gen, embeds_cls_specific)})
@@ -436,9 +440,14 @@ class DNAModule(GeneralModule):
             path = os.path.join(os.environ["MODEL_DIR"], f"val_{self.trainer.global_step}.csv")
             pd.DataFrame(log).to_csv(path)
 
-        for key in list(log.keys()):
-            if "val_" in key:
-                del self._log[key]
+        # for key in list(log.keys()):
+        #     if "val_" in key:
+        #         del self._log[key]
+
+        # Make sure the metric is always available regardless of args.clean_cls_ckpt
+        if 'val_fxd_generated_to_allseqs' not in mean_log:
+            self.log('val_fxd_generated_to_allseqs', float('inf'), prog_bar=True, sync_dist=True)
+            
         self.val_outputs = defaultdict(list)
 
 
