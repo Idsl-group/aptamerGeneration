@@ -379,6 +379,7 @@ class DNAModule(GeneralModule):
         log = {key: log[key] for key in log if "val_" in key}
         log = self.gather_log(log, self.trainer.world_size)
         mean_log = self.get_log_mean(log)
+        
         mean_log.update({'val_nan_inf_step_fraction': self.nan_inf_counter / self.inf_counter})
 
         mean_log.update({'epoch': float(self.trainer.current_epoch), 'step': float(self.trainer.global_step), 'iter_step': float(self.iter_step)})
@@ -447,6 +448,9 @@ class DNAModule(GeneralModule):
         # Make sure the metric is always available regardless of args.clean_cls_ckpt
         if 'val_fxd_generated_to_allseqs' not in mean_log:
             self.log('val_fxd_generated_to_allseqs', float('inf'), prog_bar=True, sync_dist=True)
+
+        print("HERE")
+        print(self._log.keys())
             
         self.val_outputs = defaultdict(list)
 
@@ -470,6 +474,10 @@ class DNAModule(GeneralModule):
         mean_log = self.get_log_mean(log)
         mean_log.update(
             {'epoch': float(self.trainer.current_epoch), 'step': float(self.trainer.global_step), 'iter_step': float(self.iter_step)})
+
+        # Log parameters using self.log
+        for key, value in mean_log.items():
+            self.log(key, value, prog_bar=True, sync_dist=True)
 
         if self.trainer.is_global_zero:
             logger.info(str(mean_log))
@@ -639,3 +647,8 @@ class DNAModule(GeneralModule):
         self.lg('mean_data1_sim', similarities1.float().mean(-1).mean(-1))
         self.lg('mean_data2_sim', similarities2.float().mean(-1).mean(-1))
         self.lg('mean_data_sim', similarities.float().mean(-1).mean(-1))
+
+    def log_parameters(self, log_dict):
+        """Logs all parameters in the provided dictionary using self.log."""
+        for key, value in log_dict.items():
+            self.log(key, value, prog_bar=True, sync_dist=True)
