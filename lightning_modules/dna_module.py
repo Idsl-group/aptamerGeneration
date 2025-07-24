@@ -70,6 +70,7 @@ class DNAModule(GeneralModule):
         xt, alphas = sample_cond_prob_path(self.args, seq, self.model.alphabet_size)
         if self.args.mode == 'distill':
             if self.stage == 'val':
+                self.log("val_perplexity", torch.exp(losses.mean()), prog_bar=True, sync_dist=True)
                 seq_distill = torch.zeros_like(seq, device=self.device)
             else:
                 logits_distill, xt = self.dirichlet_flow_inference(seq, cls, model=self.distill_model, args=self.distill_args)
@@ -428,7 +429,12 @@ class DNAModule(GeneralModule):
         mean_log.update(self.mean_log_ema)
         if self.trainer.is_global_zero:
             logger.info(str(mean_log))
-            self.log_dict(mean_log, batch_size=1)
+            # self.log_dict(mean_log, batch_size=1)
+
+            for key in mean_log:
+                print(f"Logging: {key}")
+                self.log(key, mean_log[key], prog_bar=True, batch_size=1)
+
             if self.args.wandb:
                 wandb.log(mean_log)
                 if self.args.dataset_type == 'toy_sampled':
@@ -446,11 +452,9 @@ class DNAModule(GeneralModule):
         #         del self._log[key]
 
         # Make sure the metric is always available regardless of args.clean_cls_ckpt
-        if 'val_fxd_generated_to_allseqs' not in mean_log:
-            self.log('val_fxd_generated_to_allseqs', float('inf'), prog_bar=True, sync_dist=True)
+        # if 'val_fxd_generated_to_allseqs' not in mean_log:
+        #     self.log('val_fxd_generated_to_allseqs', float('inf'), prog_bar=True, sync_dist=True)
 
-        print("HERE")
-        print(self._log.keys())
             
         self.val_outputs = defaultdict(list)
 
