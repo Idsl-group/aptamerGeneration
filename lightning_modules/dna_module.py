@@ -480,8 +480,8 @@ class DNAModule(GeneralModule):
             {'epoch': float(self.trainer.current_epoch), 'step': float(self.trainer.global_step), 'iter_step': float(self.iter_step)})
 
         # Log parameters using self.log
-        for key, value in mean_log.items():
-            self.log(key, value, prog_bar=True, sync_dist=True)
+        # for key, value in mean_log.items():
+        #     self.log(key, value, prog_bar=True, sync_dist=True)
 
         if self.trainer.is_global_zero:
             logger.info(str(mean_log))

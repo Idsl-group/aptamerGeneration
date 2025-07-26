@@ -51,8 +51,8 @@ elif args.dataset_type == 'toy_sampled':
     val_ds = train_ds
     toy_data = train_ds
 elif args.dataset_type == 'enhancer':
-    train_ds = EnhancerDataset(args, split='train')
-    val_ds = EnhancerDataset(args, split='valid' if not args.validate_on_test else 'test')
+    train_ds = EnhancerDataset(args, split='train', data="aptamer")
+    val_ds = EnhancerDataset(args, split='valid' if not args.validate_on_test else 'test', data="aptamer")
     toy_data = None
 
 if args.subset_train_as_val:
