@@ -45,8 +45,6 @@ val_ds = PromoterDataset(seqlength=args.sequence_length, n_tsses=100000, rand_of
 
 train_loader = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, shuffle=not args.overfit, num_workers=args.num_workers)
 val_loader = torch.utils.data.DataLoader(val_ds, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers)
-print("Len train_ds: ", len(train_ds))
-print("Len val_ds: ", len(val_ds))
 model = PromoterModule(args)
 
 if args.validate:

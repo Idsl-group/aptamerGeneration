@@ -35,9 +35,7 @@ class EnhancerDataset(torch.utils.data.Dataset):
         if data == "original":
             all_data = pickle.load(open(f'data/the_code/General/data/Deep{"MEL2" if args.mel_enhancer else "FlyBrain"}_data.pkl', 'rb'))
             self.seqs = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'{split}_data'])), dim=-1)
-            print(self.seqs.shape)
             self.clss = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'y_{split}'])), dim=-1)
-            print(self.clss.shape)
             self.num_cls = all_data[f'y_{split}'].shape[-1]
         elif data == "aptamer":
             all_data = pd.read_csv("data/aptamer/aptamer_seq_utexas.csv")
@@ -58,9 +56,7 @@ class EnhancerDataset(torch.utils.data.Dataset):
             using_data['protein_onehot'] = using_data['protein_onehot'].apply(np.array) 
 
             self.seqs = torch.argmax(torch.tensor(np.stack(copy.deepcopy(using_data['onehot_padded'].values)), dtype=torch.float32), dim=-1)
-            print(self.seqs.shape)
             self.clss = torch.argmax(torch.tensor(np.stack(copy.deepcopy(using_data['protein_onehot'].values)), dtype=torch.float32), dim=-1).squeeze(-1)
-            print(self.clss.shape)
             self.num_cls = 538
 
         else: 

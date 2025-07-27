@@ -67,7 +67,6 @@ class DNAModule(GeneralModule):
         # seq, cls = batch
         cls = None
         seq = batch
-        print(batch)
         B, L = seq.shape
 
         xt, alphas = sample_cond_prob_path(self.args, seq, self.model.alphabet_size)
@@ -439,7 +438,7 @@ class DNAModule(GeneralModule):
             # self.log_dict(mean_log, batch_size=1)
 
             for key in mean_log:
-                print(f"Logging: {key}")
+                # print(f"Logging: {key}")
                 self.log(key, mean_log[key], prog_bar=True, batch_size=1)
 
             if self.args.wandb:
