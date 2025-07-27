@@ -29,10 +29,9 @@ def parse_numpy_array_string_protein(s):
     num_rows = int(len(float_array) / 538)
     return float_array.reshape((num_rows, 538))
 
-
-
 class EnhancerDataset(torch.utils.data.Dataset):
     def __init__(self, args, split='train', data="original"):
+        self.data = data
         if data == "original":
             all_data = pickle.load(open(f'data/the_code/General/data/Deep{"MEL2" if args.mel_enhancer else "FlyBrain"}_data.pkl', 'rb'))
             self.seqs = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'{split}_data'])), dim=-1)
@@ -49,7 +48,7 @@ class EnhancerDataset(torch.utils.data.Dataset):
                 start = 1200
                 end = len(all_data)
 
-            using_data =  all_data.iloc[start:end]
+            using_data =  all_data.iloc[start:end].copy()
 
             # Safely evaluate the strings into lists, then convert to numpy arrays
             using_data['onehot_padded'] = using_data['onehot_padded'].apply(parse_numpy_array_string)   
@@ -65,7 +64,7 @@ class EnhancerDataset(torch.utils.data.Dataset):
             self.num_cls = 538
 
         else: 
-            raise ValueError("File: dataset.py ; Line 21 ; Gave an invalid argument for data object")
+            raise ValueError("File: dataset.py ; Line 33 ; Gave an invalid argument for data object")
 
         self.alphabet_size = 4
 
@@ -73,7 +72,12 @@ class EnhancerDataset(torch.utils.data.Dataset):
         return len(self.seqs)
 
     def __getitem__(self, idx):
-        return self.seqs[idx], self.clss[idx]
+        if self.data == "original":
+            return self.seqs[idx], self.clss[idx]
+        elif self.data == "aptamer":
+            return self.seqs[idx]
+        else:
+            raise ValueError("File: dataset.py ; Line 74 ; Gave an invalid argument for data object")
 
 
 class TwoClassOverfitDataset(torch.utils.data.IterableDataset):

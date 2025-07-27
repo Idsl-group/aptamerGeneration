@@ -59,15 +59,8 @@ if args.subset_train_as_val:
     val_set_size = len(val_ds) if args.constant_val_len is None else args.constant_val_len
     val_ds = Subset(train_ds, torch.randperm(len(train_ds))[:val_set_size])
 
-if args.oversample_target_class:
-    weights = torch.zeros(len(train_ds))
-    is_target_cls = train_ds.clss == args.target_class
-    weights[is_target_cls] = 0.5 / is_target_cls.sum()
-    weights[~is_target_cls] = 0.5 / (~is_target_cls).sum()
-    sampler = WeightedRandomSampler(weights=weights, num_samples=len(train_ds), replacement=True)
-    train_loader = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, num_workers=args.num_workers, sampler=sampler)
-else:
-    train_loader = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=args.dataset_type == 'enhancer')
+
+train_loader = torch.utils.data.DataLoader(train_ds, batch_size=args.batch_size, num_workers=args.num_workers, shuffle=args.dataset_type == 'enhancer')
 val_loader = torch.utils.data.DataLoader(val_ds, batch_size=args.batch_size, num_workers=args.num_workers)
 
 model = DNAModule(args, train_ds.alphabet_size, train_ds.num_cls, toy_data)

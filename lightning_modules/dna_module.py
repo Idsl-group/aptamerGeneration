@@ -64,7 +64,10 @@ class DNAModule(GeneralModule):
 
     def general_step(self, batch, batch_idx=None):
         self.iter_step += 1
-        seq, cls = batch
+        # seq, cls = batch
+        cls = None
+        seq = batch
+        print(batch)
         B, L = seq.shape
 
         xt, alphas = sample_cond_prob_path(self.args, seq, self.model.alphabet_size)
@@ -81,15 +84,17 @@ class DNAModule(GeneralModule):
             xt_inp, prior_weights = expand_simplex(xt,alphas, self.args.prior_pseudocount)
             self.lg('prior_weight', prior_weights)
 
-        if self.args.cls_free_guidance:
-            if self.args.binary_guidance:
-                cls_inp = cls.clone()
-                cls_inp[cls != self.args.target_class] = self.model.num_cls
-            else:
-                cls_inp = torch.where(torch.rand(B, device=self.device) >= self.args.cls_free_noclass_ratio, cls.squeeze(), self.model.num_cls) # set fraction of the classes to the unconditional class
-        else:
-            cls_inp = None
-        logits = self.model(xt_inp, t=alphas, cls=cls_inp)
+        # if self.args.cls_free_guidance:
+        #     if self.args.binary_guidance:
+        #         cls_inp = cls.clone()
+        #         cls_inp[cls != self.args.target_class] = self.model.num_cls
+        #     else:
+        #         cls_inp = torch.where(torch.rand(B, device=self.device) >= self.args.cls_free_noclass_ratio, cls.squeeze(), self.model.num_cls) # set fraction of the classes to the unconditional class
+        # else:
+        #     cls_inp = None
+        cls_inp = None
+        # logits = self.model(xt_inp, t=alphas, cls=cls_inp)
+        logits = self.model(xt_inp, t=alphas)
 
         losses = torch.nn.functional.cross_entropy(logits.transpose(1, 2), seq_distill if self.args.mode == 'distill' else seq, reduction='none')
         losses = losses.mean(-1)
@@ -117,19 +122,19 @@ class DNAModule(GeneralModule):
                 self.log_data_similarities(seq_pred)
 
             self.val_outputs['seqs'].append(seq_pred.cpu())
-            if self.args.cls_ckpt is not None:
-                #self.run_cls_model(seq_pred, cls, log_dict=self.val_outputs, clean_data=False, postfix='_noisycls_generated', generated=True)
-                self.run_cls_model(seq, cls, log_dict=self.val_outputs, clean_data=False, postfix='_noisycls', generated=False)
-            if self.args.clean_cls_ckpt is not None:
-                self.run_cls_model(seq_pred, cls, log_dict=self.val_outputs, clean_data=True, postfix='_cleancls_generated', generated=True)
-                self.run_cls_model(seq, cls, log_dict=self.val_outputs, clean_data=True, postfix='_cleancls', generated=False)
-                if self.args.taskiran_seq_path is not None:
-                    indices = torch.randperm(len(self.taskiran_fly_seqs))[:B].to(self.device)
-                    self.run_cls_model(self.taskiran_fly_seqs[indices].to(self.device), cls, log_dict=self.val_outputs, clean_data=True, postfix='_cleancls_taskiran', generated=True)
+            # if self.args.cls_ckpt is not None:
+            #     self.run_cls_model(seq_pred, cls, log_dict=self.val_outputs, clean_data=False, postfix='_noisycls_generated', generated=True)
+            #     self.run_cls_model(seq, cls, log_dict=self.val_outputs, clean_data=False, postfix='_noisycls', generated=False)
+            # if self.args.clean_cls_ckpt is not None:
+            #     self.run_cls_model(seq_pred, cls, log_dict=self.val_outputs, clean_data=True, postfix='_cleancls_generated', generated=True)
+            #     self.run_cls_model(seq, cls, log_dict=self.val_outputs, clean_data=True, postfix='_cleancls', generated=False)
+            #     if self.args.taskiran_seq_path is not None:
+            #         indices = torch.randperm(len(self.taskiran_fly_seqs))[:B].to(self.device)
+            #         self.run_cls_model(self.taskiran_fly_seqs[indices].to(self.device), cls, log_dict=self.val_outputs, clean_data=True, postfix='_cleancls_taskiran', generated=True)
         self.lg('alpha', alphas)
         self.lg('dur', torch.tensor(time.time() - self.last_log_time)[None].expand(B))
-        if not self.train_out_initialized and self.args.clean_cls_ckpt is not None:
-            self.run_cls_model(seq, cls, log_dict=self.train_outputs, clean_data=True, postfix='_cleancls', generated=False, run_log=False)
+        # if not self.train_out_initialized and self.args.clean_cls_ckpt is not None:
+        #     self.run_cls_model(seq, cls, log_dict=self.train_outputs, clean_data=True, postfix='_cleancls', generated=False, run_log=False)
         self.last_log_time = time.time()
         return losses.mean()
 
