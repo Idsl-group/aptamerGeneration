@@ -73,7 +73,6 @@ class DNAModule(GeneralModule):
         xt, alphas = sample_cond_prob_path(self.args, seq, self.model.alphabet_size)
         if self.args.mode == 'distill':
             if self.stage == 'val':
-                self.log("val_perplexity", torch.exp(losses.mean()), prog_bar=True, sync_dist=True)
                 seq_distill = torch.zeros_like(seq, device=self.device)
             else:
                 logits_distill, xt = self.dirichlet_flow_inference(seq, cls, model=self.distill_model, args=self.distill_args)
@@ -98,6 +97,9 @@ class DNAModule(GeneralModule):
 
         losses = torch.nn.functional.cross_entropy(logits.transpose(1, 2), seq_distill if self.args.mode == 'distill' else seq, reduction='none')
         losses = losses.mean(-1)
+
+        if self.stage == 'val':
+            self.log("val_perplexity", torch.exp(losses.mean()), prog_bar=True, sync_dist=True)
 
         self.lg('loss', losses)
         self.lg('perplexity', torch.exp(losses.mean())[None].expand(B))
@@ -452,9 +454,9 @@ class DNAModule(GeneralModule):
             path = os.path.join(os.environ["MODEL_DIR"], f"val_{self.trainer.global_step}.csv")
             pd.DataFrame(log).to_csv(path)
 
-        # for key in list(log.keys()):
-        #     if "val_" in key:
-        #         del self._log[key]
+        for key in list(log.keys()):
+            if "val_" in key:
+                del self._log[key]
 
         # Make sure the metric is always available regardless of args.clean_cls_ckpt
         # if 'val_fxd_generated_to_allseqs' not in mean_log:
@@ -478,7 +480,7 @@ class DNAModule(GeneralModule):
     def on_train_epoch_end(self):
         self.train_out_initialized = True
         log = self._log
-        log = {key: log[key] for key in log if "train_" in key}
+        log = {key: log[key] for key in log if ("train_" in key)}
         log = self.gather_log(log, self.trainer.world_size)
         mean_log = self.get_log_mean(log)
         mean_log.update(
