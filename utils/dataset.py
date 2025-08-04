@@ -37,8 +37,8 @@ class EnhancerDataset(torch.utils.data.Dataset):
             self.seqs = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'{split}_data'])), dim=-1)
             self.clss = torch.argmax(torch.from_numpy(copy.deepcopy(all_data[f'y_{split}'])), dim=-1)
             self.num_cls = all_data[f'y_{split}'].shape[-1]
-        elif data == "aptamer":
-            all_data = pd.read_csv("data/aptamer/aptamer_seq_utexas.csv")
+        elif data == "aptamer_utexas":
+            all_data = pd.read_csv("data/aptamer_texas/aptamer_seq_utexas.csv")
             if split == 'train':
                 start = 0
                 end = 1200
@@ -58,6 +58,20 @@ class EnhancerDataset(torch.utils.data.Dataset):
             self.seqs = torch.argmax(torch.tensor(np.stack(copy.deepcopy(using_data['onehot_padded'].values)), dtype=torch.float32), dim=-1)
             self.clss = torch.argmax(torch.tensor(np.stack(copy.deepcopy(using_data['protein_onehot'].values)), dtype=torch.float32), dim=-1).squeeze(-1)
             self.num_cls = 538
+
+        elif data == "aptamer_trans":
+
+            all_data = pickle.load(open("data/aptamer_aptatrans/aptatrans_data.pkl", 'rb'))
+            
+            if split == 'train':
+                pass
+            elif split == 'valid':
+                pass
+            elif split == 'test':
+                pass
+            else:
+                raise ValueError('')
+
 
         else: 
             raise ValueError("File: dataset.py ; Line 33 ; Gave an invalid argument for data object")

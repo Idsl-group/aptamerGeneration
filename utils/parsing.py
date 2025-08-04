@@ -60,6 +60,7 @@ def parse_train_args():
     parser.add_argument("--toy_num_seq", type=int, default=1000)
     parser.add_argument("--toy_seq_len", type=int, default=20)
     parser.add_argument("--num_workers", type=int, default=4)
+    parser.add_argument("--aptamer_data", type=str, choices=['original', 'aptamer_utexas', 'aptamer_trans'], default="aptamer_trans")
 
     # Guidance
     parser.add_argument("--cls_guidance", action='store_true')
