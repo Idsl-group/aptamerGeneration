@@ -11,27 +11,26 @@ Some other details for how I am running this:
 
 Approximate project layout
 
+```
 .
-├── data
-
-│   └── Human, Flybrain, Melanoma, & Aptamer Data
-
-├── lightning_modules
-
-│   └── PyTorch Lightning classes setup to use models 
-├── model
-│   └── Models & Architectures
-├── selene
-│   └── Cloned Selene Repository
-├── utils
-│   └── Utility functions for logging, dataset classes, visualizing, etc
-├── workdir
-│   └── Previous Runs & Checkpoints...
+├── data/
+│   └── Human, Flybrain, Melanoma, and Aptamer Data
+├── lightning_modules/
+│   └── PyTorch Lightning classes setup to use models 
+├── model/
+│   └── Models and Architectures
+├── selene/
+│   └── Cloned Selene Repository
+├── utils/
+│   └── Utility functions for logging, dataset classes, visualizing, etc
+├── workdir/
+│   └── Previous Runs and Checkpoints...
 ├── train_classifier.py
 ├── train_dna.py
 ├── train_promo.py
 ├── trial.ipynb
 └── run.py
+```
 
 More details for this will be out soon. Please feel free to reach out to me for any questions!
 
