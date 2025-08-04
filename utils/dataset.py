@@ -61,20 +61,34 @@ class EnhancerDataset(torch.utils.data.Dataset):
 
         elif data == "aptamer_trans":
 
-            all_data = pickle.load(open("data/aptamer_aptatrans/aptatrans_data.pkl", 'rb'))
+            all_data: pd.DataFrame = pickle.load(open("data/aptamer_aptatrans/aptatrans_data.pkl", 'rb'))
             
             if split == 'train':
-                pass
-            elif split == 'valid':
-                pass
-            elif split == 'test':
-                pass
-            else:
-                raise ValueError('')
+                
+                start = 0
+                end = 70000
 
+            elif split == 'valid':
+                
+                start = 70000
+                end = 85000
+
+            elif split == 'test':
+                
+                start = 85000
+                end = len(all_data)
+
+            else:
+                raise ValueError("File: dataset.py ; Line 33 ; Gave an invalid argument for split")
+
+            using_data = all_data.iloc[start:end].copy()
+
+            self.seqs = torch.argmax(torch.from_numpy(np.stack(using_data['SEQUENCE_encoded'])), dim=-1)
+            self.clss = torch.argmax(torch.from_numpy(np.stack(using_data['dummy_y'])), dim=-1)
+            self.num_cls = 1
 
         else: 
-            raise ValueError("File: dataset.py ; Line 33 ; Gave an invalid argument for data object")
+            raise ValueError(f"File: dataset.py ; Line 33 ; Gave an invalid argument for data object ; Input: {split}")
 
         self.alphabet_size = 4
 
@@ -84,7 +98,7 @@ class EnhancerDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
         if self.data == "original":
             return self.seqs[idx], self.clss[idx]
-        elif self.data == "aptamer":
+        elif self.data == "aptamer_utexas" or self.data == "aptamer_trans":
             return self.seqs[idx]
         else:
             raise ValueError("File: dataset.py ; Line 74 ; Gave an invalid argument for data object")
